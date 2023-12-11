@@ -9,10 +9,12 @@
 int toBit(char *);
 char processByte(int, int);
 void processError();
-void detectStart();
+void connectionLost();
 int main(int argc, char **argv)
 {
     int i;
+    char c;
+    char bit[4];
     int parity, flagparity = 0;
     // checking options
     for (i = 0; i < argc; i++)
@@ -30,25 +32,41 @@ int main(int argc, char **argv)
     }
     while (1)
     {
-        detectStart();
-        printf("%c", processByte(flagparity, parity));
+        // wait for a 0 (low) bit to start the transmission, acts as a synchronizer according to UART
+        do
+            {
+                do
+                {
+                    if ((scanf("%c", bit) == EOF)){ 
+                        return(0);
+                    }
+                } while (bit[0] != '_');//ignoring all starting high(-) margin anf waiting for low (_) to start transmission
+                scanf("%c%c%c", bit + 1, bit + 2,bit+3);
+            } while (toBit(bit) != 0);
+        c=processByte(flagparity, parity);
+        scanf("%c%c%c%c",bit,bit+1,bit+2,bit+3);
+        if (toBit(bit)){
+            printf("%c",c );
+        }else{
+            connectionLost();
+        }
+        
     }
     return 0;
 }
 
-void detectStart(){
-    // wait for a 0 (low) bit to start the transmission, acts as a synchronizer according to UART
+void connectionLost(){
     char bit[4];
-    do
+    printf("\n\nPossible Connection Lost\nWaiting to reconnect\n\n");
+    do{
+        do
         {
-            do
-            {
-                if ((scanf("%c", bit) == EOF)){ 
-                    exit(0);
-                    }
-            } while (bit[0] != '_');//ignoring all starting high(-) margin anf waiting for low (_) to start transmission
-            scanf("%c%c%c", bit + 1, bit + 2,bit+3);
-        } while (toBit(bit) != 0);
+            if ((scanf("%c", bit) == EOF)){ 
+                exit(0);
+            }
+        } while (bit[0] != '-');
+        scanf("%c%c%c", bit + 1, bit + 2,bit+3);
+    } while (toBit(bit) != 1);
 }
 
 int toBit(char *a)
