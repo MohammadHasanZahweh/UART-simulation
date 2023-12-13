@@ -19,7 +19,7 @@ int main(int argc, char **argv)
 {
     int i;
     char c;
-    char bit[4];
+    char bit[BIT_WIDTH];
     int parity, flagparity = 0;
     // checking options
     for (i = 0; i < argc; i++)
