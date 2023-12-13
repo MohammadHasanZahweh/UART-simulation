@@ -5,9 +5,12 @@
 #define NBIT 8
 #endif
 
-
+#ifndef BIT_WIDTH
+#define BIT_WIDTH 4
+#endif
 
 void transmitByte(char,int,int);
+void printn(char,int);
 
 int main(int argc, char **argv){
 	int i;// to loop over the byte
@@ -34,7 +37,7 @@ int main(int argc, char **argv){
 }
 
 void transmitByte(char c,int flagparity,int parity){
-printf("____");// start of transmission
+printn('_',BIT_WIDTH);// start of transmission
 	int i,bit;
 		for (i=0; i<NBIT; i++)
 		{
@@ -44,17 +47,23 @@ printf("____");// start of transmission
 				parity=parity^bit;
 			}
 			if (bit){
-				printf("----");
+				printn('-',BIT_WIDTH);
 			}else{
-				printf("____");
+				printn('_',BIT_WIDTH);
 			}
 		}
 		if (flagparity){
 			if (parity){
-				printf("----");
+				printn('-',BIT_WIDTH);
 			}else{
-				printf("____");
+				printn('_',BIT_WIDTH);
 			}
 		}
-		printf("----");// end of transmission
+		printn('-',BIT_WIDTH);// end of transmission
+}
+void printn(char c,int num){
+	int i=0; 
+	for (i=0; i<num;i++){
+		printf("%c",c);
+	}
 }

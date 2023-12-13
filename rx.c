@@ -6,8 +6,13 @@
 #define NBIT 8
 #endif
 
+#ifndef BIT_WIDTH
+#define BIT_WIDTH 4
+#endif
+
 int toBit(char *);
 char processByte(int, int);
+void scann(char*,int);
 void processError();
 void connectionLost();
 int main(int argc, char **argv)
@@ -41,10 +46,10 @@ int main(int argc, char **argv)
                         return(0);
                     }
                 } while (bit[0] != '_');//ignoring all starting high(-) margin anf waiting for low (_) to start transmission
-                scanf("%c%c%c", bit + 1, bit + 2,bit+3);
+                scann(bit + 1, BIT_WIDTH-1);
             } while (toBit(bit) != 0);
         c=processByte(flagparity, parity);
-        scanf("%c%c%c%c",bit,bit+1,bit+2,bit+3);
+        scann(bit,BIT_WIDTH);
         if (toBit(bit)){
             printf("%c",c );
         }else{
@@ -65,16 +70,18 @@ void connectionLost(){
                 exit(0);
             }
         } while (bit[0] != '-');
-        scanf("%c%c%c", bit + 1, bit + 2,bit+3);
+        scann(bit+1,BIT_WIDTH-1);
     } while (toBit(bit) != 1);
 }
 
 int toBit(char *a)
 {
-    //This function takes 4 characters considering they are either - or _ and makes consider return the majority (acts as an error detector)
-    int low;
-    low = (a[0] == '_') + (a[1] == '_') + (a[2] == '_') + (a[3] == '_');
-    if (low >= 2)
+    //This function takes BIT_WIDTH characters considering they are either - or _ and makes consider return the majority (acts as an error detector)
+    int low=0,i;
+    for (i=0;i<BIT_WIDTH;i++){
+        low+=(a[i]=='_');
+    }
+    if (low >= BIT_WIDTH/2)
     {
         return 0;
     }
@@ -92,7 +99,7 @@ char processByte(int flagparity, int parity)
     // since the start of transimission is covered in the detectStart function, we start by processing directly
     for (i = 0; i < NBIT; i++)
     {
-        scanf("%c%c%c%c", bit, bit + 1, bit + 2,bit + 3); 
+        scann(bit,BIT_WIDTH);
         out |= toBit(bit) << i;//setting the ith bit from LSB
         if (flagparity)
         {
@@ -101,7 +108,7 @@ char processByte(int flagparity, int parity)
     }
     if (flagparity)
     {
-        scanf("%c%c%c%c", bit, bit + 1, bit + 2,bit + 3);// processing the parity bit
+        scann(bit,BIT_WIDTH);// processing the parity bit
         parity ^= toBit(bit);
         if (parity != 0)
         {
@@ -114,4 +121,11 @@ char processByte(int flagparity, int parity)
 void processError(){
     printf("\n\nError\n\n");
     // exit(1);
+}
+
+void scann(char*  c,int num){
+    int i;
+    for (i=0; i<num; i++){
+        scanf("%c",c+i);
+    }
 }
